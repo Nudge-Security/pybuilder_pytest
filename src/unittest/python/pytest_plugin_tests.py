@@ -166,7 +166,7 @@ class PytestPluginRunningTests(TestCase):
         self.project = Project("basedir")
         self.project.set_property("unittest_python_env", "build")
 
-    def test_should_replace_placeholders_into_properties(self, main):  # pylint: disable=invalid-name
+    def test_should_replace_placeholders_into_properties(self):  # pylint: disable=invalid-name
         """ Test that plugin correctly works with placeholders"""
         project = Project("basedir")
         project.set_property("unittest_python_env", "build")
@@ -179,7 +179,7 @@ class PytestPluginRunningTests(TestCase):
         project.set_property("dir_source_main_python", '.')
         project.set_property("verbose", True)
         reactor, verify_execute = get_reactor()
-        run_unit_tests(self.project, Mock(), reactor)
+        run_unit_tests(project, Mock(), reactor)
         result = verify_execute.call_args
         self.assertEqual(result.args[0], ["python",
                                           "-m",
