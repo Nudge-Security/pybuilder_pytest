@@ -166,7 +166,6 @@ class PytestPluginRunningTests(TestCase):
         self.project = Project("basedir")
         self.project.set_property("unittest_python_env", "build")
 
-    @patch("pybuilder_pytest.pytest.main", return_value=None)
     def test_should_replace_placeholders_into_properties(self, main):  # pylint: disable=invalid-name
         """ Test that plugin correctly works with placeholders"""
         project = Project("basedir")
