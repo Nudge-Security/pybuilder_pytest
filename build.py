@@ -13,7 +13,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-
+import os
 from sys import path as sys_path
 
 from pybuilder.core import Author, init, use_plugin, task
@@ -52,6 +52,11 @@ def filter_settings(project):
 
 @init
 def set_properties(project):
+    build_number = project.get_property("build_number",os.environ.get('GITHUB_RUN_NUMBER'))
+    if build_number is not None and "" != build_number:
+        project.version = build_number
+    else:
+        project.version = "0.0.999"
     # dependencies
     project.build_depends_on('mock')
     project.depends_on('pytest')
