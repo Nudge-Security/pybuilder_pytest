@@ -29,6 +29,7 @@ from pybuilder_pytest_too import initialize_pytest_plugin, run_unit_tests
 
 class PytestPluginInitializationTests(TestCase):
     """ Test initialize_pytest_plugin"""
+
     def setUp(self):
         self.project = Project("basedir")
 
@@ -39,7 +40,7 @@ class PytestPluginInitializationTests(TestCase):
         mock_project.build_depends_on.assert_any_call('pytest')
         mock_project.build_depends_on.assert_any_call('pytest-cov')
 
-    def test_should_set_default_properties(self):   # pylint: disable=invalid-name
+    def test_should_set_default_properties(self):  # pylint: disable=invalid-name
         """ Test default properties"""
         initialize_pytest_plugin(self.project)
         expected_default_properties = {
@@ -53,7 +54,7 @@ class PytestPluginInitializationTests(TestCase):
         """ Test that user-specified properties override defaults"""
         expected_properties = {
             "dir_source_pytest_python": "some/path"
-            }
+        }
         for property_name, property_value in expected_properties.items():
             self.project.set_property(property_name, property_value)
 
@@ -120,7 +121,9 @@ def read_pytest_conftest_result_file(directory):  # pylint: disable=invalid-name
     file_in.close()
     return out
 
+
 fail = False
+
 
 def _execute_create_files(command_and_arguments,
                           outfile_name=None,
@@ -141,6 +144,8 @@ def _execute_create_files(command_and_arguments,
         return 1
     else:
         return 0
+
+
 def get_reactor():
     reactor = Mock()
     reactor.python_env_registry = {}
@@ -153,38 +158,39 @@ def get_reactor():
     return reactor, verify_execute
 
 
-
 class PytestPluginRunningTests(TestCase):
     """ Test run_unit_tests function"""
+
     def setUp(self):
         self.tmp_test_folder = mkdtemp()
         self.project = Project("basedir")
-        self.project.set_property("unittest_python_env","build")
+        self.project.set_property("unittest_python_env", "build")
 
     @patch("pybuilder_pytest.pytest.main", return_value=None)
     def test_should_replace_placeholders_into_properties(self, main):  # pylint: disable=invalid-name
         """ Test that plugin correctly works with placeholders"""
-        self.project.set_property('basedir','basedir')
-        self.project.basedir = 'basedir'
-        self.project.set_property("dir_source_pytest_python",
+        project = Project("basedir")
+        project.set_property("unittest_python_env", "build")
+        project.set_property('basedir', 'basedir')
+        project.basedir = 'basedir'
+        project.set_property("dir_source_pytest_python",
                                   "src/unittest/${basedir}")
-        self.project.set_property("pytest_extra_args",
+        project.set_property("pytest_extra_args",
                                   ['some_command', '/path/${basedir}'])
-        self.project.set_property("dir_source_main_python", '.')
-        self.project.set_property("verbose", True)
+        project.set_property("dir_source_main_python", '.')
+        project.set_property("verbose", True)
         reactor, verify_execute = get_reactor()
         run_unit_tests(self.project, Mock(), reactor)
         result = verify_execute.call_args
-        # self.assertEqual(result.args[0],[
-        #     "python",
-        #     "-m",
-        #     "pytest",
-        #     'basedir/src/unittest/basedir',
-        #     'some_command',
-        #     '/path/basedir',
-        #     '-s',
-        #     '-v'
-        # ])
+        self.assertEqual(result.args[0], ["python",
+                                          "-m",
+                                          "pytest",
+                                          'basedir/src/unittest/basedir',
+                                          'some_command',
+                                          '/path/basedir',
+                                          '-s',
+                                          '-v'
+                                          ])
 
     def create_test_project(self, name, content_dict):
         """ Create test PyB project with specific content.
@@ -202,7 +208,7 @@ class PytestPluginRunningTests(TestCase):
         mkdir(src_dir)
         test_project.set_property('dir_source_main_python',
                                   'src')
-        test_project.set_property("unittest_python_env","build")
+        test_project.set_property("unittest_python_env", "build")
         for file_name, content in content_dict.items():
             file_out = open(path_join(tests_dir, file_name), 'w')
             file_out.write(content)
@@ -215,7 +221,7 @@ class PytestPluginRunningTests(TestCase):
         test_project = self.create_test_project(
             'pytest_success', {'test_success.py': PYTEST_FILE_SUCCESS})
         reactor, verify_execute = get_reactor()
-        run_unit_tests(test_project, Mock(),reactor )
+        run_unit_tests(test_project, Mock(), reactor)
         self.assertTrue(
             test_project.expand_path('$dir_source_main_python') in sys_path)
         self.assertTrue(
