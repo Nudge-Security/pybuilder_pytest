@@ -13,20 +13,17 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-""" PyBuilder plugin which provides work with PyTest tool"""
-from sys import path as sys_path
 
 import pytest
+from sys import path as sys_path
+
 from pybuilder.core import task, init, use_plugin
 from pybuilder.errors import BuildFailedException
 from pybuilder.plugins.python.unittest_plugin \
-        import _register_test_and_source_path_and_return_test_dir \
-        as push_test_path_to_syspath
-
-from pybuilder_pytest import version
+    import _register_test_and_source_path_and_return_test_dir \
+    as push_test_path_to_syspath
 
 __author__ = 'Alexey Sanko'
-__version__ = version.__version__
 
 use_plugin("python.core")
 
@@ -34,25 +31,29 @@ use_plugin("python.core")
 @init
 def initialize_pytest_plugin(project):
     """ Init default plugin project properties. """
-    project.plugin_depends_on('pytest')
-    project.set_property_if_unset("dir_source_pytest_python",
-                                  "src/unittest/python")
+    project.build_depends_on('pytest')
+    project.build_depends_on('pytest-cov')
+    project.set_property_if_unset("dir_source_pytest_python", "src/unittest/python")
     project.set_property_if_unset("pytest_extra_args", [])
+    project.set_property_if_unset("pytest_python_env", "build")
 
 
 @task
-def run_unit_tests(project, logger):
+def run_unit_tests(project, logger,reactor):
     """ Call pytest for the sources of the given project. """
     logger.info('pytest: Run unittests.')
     test_dir = push_test_path_to_syspath(project, sys_path, 'pytest')
-    extra_args = [project.expand(prop)
-                  for prop in project.get_property("pytest_extra_args")]
+    extra_args = [project.expand(prop) for prop in project.get_property("pytest_extra_args")]
     try:
         pytest_args = [test_dir] + (extra_args if extra_args else [])
         if project.get_property('verbose'):
             pytest_args.append('-s')
             pytest_args.append('-v')
-        ret = pytest.main(pytest_args)
+        env_ = reactor.python_env_registry[project.get_property("unittest_python_env")]
+        cmd_args = env_.executable
+        cmd_args.extend(['-m','pytest'])
+        cmd_args.extend(pytest_args)
+        ret = env_.execute_command(cmd_args, cwd=project.get_property('dir_source_pytest_python'))
         if ret:
             raise BuildFailedException('pytest: unittests failed')
         else:
