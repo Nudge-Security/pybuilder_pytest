@@ -164,12 +164,12 @@ class PytestPluginRunningTests(TestCase):
     def setUp(self):
         self.tmp_test_folder = mkdtemp()
         self.project = Project("basedir")
-        self.project.set_property("unittest_python_env", "build")
+        self.project.set_property("pytest_python_env", "build")
 
     def test_should_replace_placeholders_into_properties(self):  # pylint: disable=invalid-name
         """ Test that plugin correctly works with placeholders"""
         project = Project("basedir")
-        project.set_property("unittest_python_env", "build")
+        project.set_property("pytest_python_env", "build")
         project.set_property('basedir', 'basedir')
         project.basedir = 'basedir'
         project.set_property("dir_source_pytest_python",
