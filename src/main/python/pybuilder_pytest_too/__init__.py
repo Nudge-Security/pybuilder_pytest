@@ -54,11 +54,12 @@ def run_unit_tests(project, logger:Logger,reactor):
             pytest_args.append('-s')
             pytest_args.append('-v')
         env_ = reactor.python_env_registry[project.get_property("pytest_python_env")]
-        cmd_args = env_.executable
-        env_set = {"PYTHONPATH":":".join(sys_path)}
-        env_set.update(os.environ)
+        cmd_args = []
+        cmd_args.extend(env_.executable)
         cmd_args.extend(['-m','pytest'])
         cmd_args.extend(pytest_args)
+        env_set = {"PYTHONPATH":":".join(sys_path)}
+        env_set.update(os.environ)
         with tempfile.NamedTemporaryFile() as outfile:
             error_file_name = "{0}.err".format(outfile.name)
             ret = env_.execute_command(cmd_args,outfile.name,env=env_set, cwd=project.get_property('dir_source_pytest_python'))

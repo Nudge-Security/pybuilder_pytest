@@ -151,7 +151,7 @@ def get_reactor():
     reactor.python_env_registry = {}
     reactor.python_env_registry["build"] = pyb_env = Mock()
     pyb_env.environ = {}
-    pyb_env.executable = 'python'
+    pyb_env.executable = ['python']
     verify_mock = pyb_env.verify_can_execute = Mock()
     verify_execute = pyb_env.execute_command = Mock(side_effect=_execute_create_files)
     reactor.pybuilder_venv = pyb_env
