@@ -39,7 +39,7 @@ def initialize_pytest_plugin(project):
     project.build_depends_on('pytest-cov')
     project.set_property_if_unset("dir_source_pytest_python", "src/unittest/python")
     project.set_property_if_unset("pytest_extra_args", [])
-    project.set_property_if_unset("pytest_python_env", "build")
+    project.set_property_if_unset("pytest_python_env", project.get_property("unittest_python_env", "build"))
 
 
 @task
@@ -53,7 +53,7 @@ def run_unit_tests(project, logger:Logger,reactor):
         if project.get_property('verbose'):
             pytest_args.append('-s')
             pytest_args.append('-v')
-        env_ = reactor.python_env_registry[project.get_property("unittest_python_env")]
+        env_ = reactor.python_env_registry[project.get_property("pytest_python_env")]
         cmd_args = env_.executable
         env_set = {"PYTHONPATH":":".join(sys_path)}
         env_set.update(os.environ)
@@ -65,9 +65,9 @@ def run_unit_tests(project, logger:Logger,reactor):
             error_file_lines = read_file(error_file_name)
             outfile_lines = read_file(outfile.name)
             for line in error_file_lines:
-                logger.error(line)
+                logger.error(line.replace("\n",""))
             for line in outfile_lines:
-                logger.info(line)
+                logger.info(line.replace("\n",""))
             if ret:
                 raise BuildFailedException('pytest: unittests failed')
             else:
