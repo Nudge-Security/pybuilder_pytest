@@ -61,10 +61,11 @@ def run_unit_tests(project, logger:Logger,reactor):
         with tempfile.NamedTemporaryFile() as outfile:
             error_file_name = "{0}.err".format(outfile.name)
             ret = env_.execute_command(cmd_args, outfile.name, cwd=project.get_property('dir_source_main_python'))
-            error_file_lines = read_file(error_file_name)
+            if os.path.exists(error_file_name):
+                error_file_lines = read_file(error_file_name)
+                for line in error_file_lines:
+                    logger.error(line.replace("\n",""))
             outfile_lines = read_file(outfile.name)
-            for line in error_file_lines:
-                logger.error(line.replace("\n",""))
             for line in outfile_lines:
                 logger.info(line.replace("\n",""))
             if ret:
