@@ -37,9 +37,11 @@ def initialize_pytest_plugin(project):
     """ Init default plugin project properties. """
     project.build_depends_on('pytest')
     project.build_depends_on('pytest-cov')
+    project.build_depends_on('pytest-xdist')
     project.set_property_if_unset("dir_source_pytest_python", "src/unittest/python")
     project.set_property_if_unset("pytest_extra_args", [])
     project.set_property_if_unset("pytest_python_env", "build")
+    project.set_property_if_unset("pytest_parallel", False)
 
 
 @task
@@ -53,6 +55,8 @@ def run_unit_tests(project, logger:Logger,reactor):
         if project.get_property('verbose'):
             pytest_args.append('-s')
             pytest_args.append('-v')
+        if project.get_property('pytest_parallel'):
+            pytest_args.extend(['-n','auto'])
         env_ = reactor.python_env_registry[project.get_property("pytest_python_env")]
         cmd_args = []
         cmd_args.extend(env_.executable)
