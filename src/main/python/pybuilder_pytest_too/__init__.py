@@ -55,7 +55,7 @@ def run_unit_tests(project, logger:Logger,reactor):
         if project.get_property('verbose'):
             pytest_args.append('-s')
             pytest_args.append('-v')
-        if project.get_property('pytest_parallel'):
+        if project.get_property('pytest_unit_parallel'):
             pytest_args.extend(['-n','auto'])
         env_ = reactor.python_env_registry[project.get_property("pytest_python_env")]
         cmd_args = []
